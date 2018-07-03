@@ -4,6 +4,9 @@ import com.sun.mail.imap.IMAPFolder
 import org.funktionale.option.Option
 import org.funktionale.option.Option.None
 import org.funktionale.option.Option.Some
+import javax.mail.Address
+import javax.mail.Multipart
+import javax.mail.Part
 import com.sun.mail.imap.IMAPMessage as MailMessage
 
 /**
@@ -24,39 +27,49 @@ data class MessageHeader(
  * Wrapper around the standard JavaMail `IMAPMessage` class to make
  * things a little easier to work with.
  */
-class Message(private val mailMessage: com.sun.mail.imap.IMAPMessage) {
+data class Message(val underlyingMessage: com.sun.mail.imap.IMAPMessage) : Part by underlyingMessage {
 
     /**
      * Gets the first "from" address in the message.
      */
-    val from: String by lazy {
-        mailMessage.from[0].toString()
+    val fromAsString: String by lazy {
+        underlyingMessage.from[0].toString()
     }
+
+    fun from(): Array<out Address> = underlyingMessage.from
 
     /**
      * Gets the message content from the message as a String.
      */
     val bodyText: String by lazy {
-        mailMessage.content as String
+        underlyingMessage.content as String
     }
 
     /**
      * Gets the message's UID value.
      */
-    val uid: Long = mailMessage.getUID()
+    val uid: Long by lazy {
+        underlyingMessage.getUID()
+    }
 
     /**
      * Gets the collection of headers from the message (as an immutable `List`).
      */
     val headers: List<MessageHeader> by lazy {
-        val res = mutableListOf<MessageHeader>()
-        val headersEnum = mailMessage.allHeaders
-        headersEnum.iterator().forEach {
-            val messageHeader = MessageHeader(it.name, it.value)
-            res.add(messageHeader)
-        }
+        underlyingMessage.allHeaders.iterator()
+                .asSequence()
+                .map {
+                    MessageHeader(it.name, it.value)
+                }
+                .toList()
+    }
 
-        res
+    fun isMultipart(): Boolean {
+        return isMimeType("multipart/*")
+    }
+
+    fun getMultipartContent(): Multipart {
+        return content as Multipart
     }
 }
 

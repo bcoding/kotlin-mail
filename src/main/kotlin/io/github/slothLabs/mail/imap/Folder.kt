@@ -3,7 +3,7 @@ package io.github.slothLabs.mail.imap
 import com.sun.mail.imap.IMAPFolder
 import com.sun.mail.imap.IMAPMessage
 import org.funktionale.option.Option
-import org.funktionale.option.toOption
+import org.funktionale.option.getOrElse
 import javax.mail.FetchProfile
 import javax.mail.Folder
 
@@ -67,22 +67,21 @@ class Folder(private val javaMailFolder: IMAPFolder) {
         builder.block()
         val searchTerm = builder.build()
 
-        val javaMailMessages = if (builder.hasSortTerms()) {
-            val sortTerms = builder.getSortTerms().map { it.toSortTerm() }.toTypedArray()
-            searchTerm.map { javaMailFolder.getSortedMessages(sortTerms, it)}
-        } else {
-            searchTerm.map { javaMailFolder.search(it) }
-        }
-
-        javaMailMessages.map { javaMailFolder.fetch(it, preFetchInfo) }
-        val messages = mutableListOf<Message>()
-        javaMailMessages.map {
-            for (jmm in it) {
-                messages.add(Message(jmm as IMAPMessage))
+        val javaMailMessages = searchTerm.map {
+            when {
+                it.hasSortTerms() -> javaMailFolder.getSortedMessages(it.sortedBy.map { it.toSortTerm() }.toTypedArray(),
+                        it.searchTerm)
+                else -> javaMailFolder.search(it.searchTerm)
             }
         }
 
-        return messages
+        return javaMailMessages.map {
+            javaMailFolder.fetch(it, preFetchInfo)
+
+            it.asSequence()
+                    .map { Message(it as IMAPMessage) }
+                    .toList()
+        }.getOrElse { emptyList() }
     }
 
     /**
@@ -160,7 +159,11 @@ class Folder(private val javaMailFolder: IMAPFolder) {
         if (prefetch) {
             javaMailFolder.fetch(jmmMessages, preFetchInfo)
         }
-        return jmmMessages.map { Message(it as IMAPMessage) }
+        return jmmMessages.map(::toMessage)
     }
+
+    fun expunge(): List<Message> = javaMailFolder.expunge()?.map(::toMessage) ?: emptyList()
+
+    private fun toMessage(message: javax.mail.Message): Message = Message(message as IMAPMessage)
 }
 

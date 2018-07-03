@@ -116,18 +116,17 @@ class ImapConnectionTest {
                 }
                 msgList.addAll(results)
 
+                assertTrue(msgList.isNotEmpty())
+
+                val first = msgList[0]
+                assertEquals(fromAddress, first.fromAsString)
+                assertEquals(testBodyText.trim(), first.bodyText.trim())
+                assertNotNull(first.uid)
+                assertFalse(first.headers.isEmpty())
 
                 processed = true
             }
         }
-
-        assertTrue(msgList.isNotEmpty())
-
-        val first = msgList[0]
-        assertEquals(fromAddress, first.from)
-        assertEquals(testBodyText.trim(), first.bodyText.trim())
-        assertNotNull(first.uid)
-        assertFalse(first.headers.isEmpty())
 
         assertTrue(processed)
     }
@@ -160,17 +159,17 @@ class ImapConnectionTest {
                 msgList.addAll(results)
 
 
+                assertTrue(msgList.isNotEmpty())
+
+                val first = msgList[0]
+                assertEquals(fromAddress, first.fromAsString)
+                assertEquals(testBodyText.trim(), first.bodyText.trim())
+                assertNotNull(first.uid)
+                assertFalse(first.headers.isEmpty())
+
                 processed = true
             }
         }
-
-        assertTrue(msgList.isNotEmpty())
-
-        val first = msgList[0]
-        assertEquals(fromAddress, first.from)
-        assertEquals(testBodyText.trim(), first.bodyText.trim())
-        assertNotNull(first.uid)
-        assertFalse(first.headers.isEmpty())
 
         assertTrue(processed)
     }
@@ -210,17 +209,17 @@ class ImapConnectionTest {
                 msgList.addAll(results)
 
 
+                assertTrue(msgList.isNotEmpty())
+
+                val first = msgList[0]
+                assertEquals(fromAddress, first.fromAsString)
+                assertEquals(testBodyText.trim(), first.bodyText.trim())
+                assertNotNull(first.uid)
+                assertFalse(first.headers.isEmpty())
+
                 processed = true
             }
         }
-
-        assertTrue(msgList.isNotEmpty())
-
-        val first = msgList[0]
-        assertEquals(fromAddress, first.from)
-        assertEquals(testBodyText.trim(), first.bodyText.trim())
-        assertNotNull(first.uid)
-        assertFalse(first.headers.isEmpty())
 
         assertTrue(processed)
     }
@@ -254,17 +253,18 @@ class ImapConnectionTest {
 
                 msgList.addAll(results)
 
+
+                assertTrue(msgList.isNotEmpty())
+
+                val first = msgList[0]
+                assertEquals(fromAddress, first.fromAsString)
+                assertEquals(testBodyText.trim(), first.bodyText.trim())
+                assertNotNull(first.uid)
+                assertFalse(first.headers.isEmpty())
+
                 processed = true
             }
         }
-
-        assertTrue(msgList.isNotEmpty())
-
-        val first = msgList[0]
-        assertEquals(fromAddress, first.from)
-        assertEquals(testBodyText.trim(), first.bodyText.trim())
-        assertNotNull(first.uid)
-        assertFalse(first.headers.isEmpty())
 
         assertTrue(processed)
     }

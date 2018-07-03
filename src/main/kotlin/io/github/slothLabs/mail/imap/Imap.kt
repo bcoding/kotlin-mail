@@ -38,12 +38,12 @@ class Imap internal constructor(private val store: Store): Closeable, AutoClosea
      * @param mode the mode to open the folder in.
      * @param action the action to perform against the folder.
      */
-    fun folder(name: String, mode: FolderModes, action: Folder.() -> Unit) {
+    fun folder(name: String, mode: FolderModes, expunge: Boolean = false, action: Folder.() -> Unit) {
         val imapFolder = store.getFolder(name) as IMAPFolder
         imapFolder.open(mode.toJavaMailMode())
         val theFolder = Folder(imapFolder)
         theFolder.action()
-        theFolder.close(false)
+        theFolder.close(expunge)
     }
 }
 
@@ -144,7 +144,7 @@ fun imap(connectionInformation: ConnectionInformation, props: Properties = Prope
  *
  * @param connectionInformation the [ConnectionInformation] to connect with.
  */
-fun Store.connect(connectionInformation: ConnectionInformation) = this.connect(
+fun Store.connect(connectionInformation: ConnectionInformation) = connect(
         connectionInformation.host,
         connectionInformation.port,
         connectionInformation.user,

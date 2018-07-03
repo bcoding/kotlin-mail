@@ -86,7 +86,7 @@ class SearchBuilder {
 
     /**
      * Creates an `Option` containing either `None` or the combined
-     * `SearchTerm` instance that results from merging all of the terms
+     * `Search` instance that results from merging all of the terms
      * created via the various build methods.
      *
      * @return an `Option` that's `None` if there were no search terms added,
@@ -94,17 +94,12 @@ class SearchBuilder {
      *         was added, or `Some` containing an `AndTerm` built from merging all of
      *         the added search terms.
      */
-    fun build(): Option<SearchTerm> =
-        if (terms.isEmpty()) None
-        else if (terms.size == 1) Some(terms[0])
-        else Some(terms.reduce { first, second -> AndTerm(first, second) })
-
-    /**
-     * Whether or not sort terms have been applied to the search.
-     *
-     * @return `true` if a sort has been applied; `false` otherwise.
-     */
-    fun hasSortTerms() = sortedBy.isNotEmpty()
+    fun build(): Option<Search> =
+            when {
+                terms.isEmpty() -> None
+                terms.size == 1 -> Some(Search(terms[0], sortedBy.toList()))
+                else -> Some(Search(terms.reduce { first, second -> AndTerm(first, second) }, sortedBy.toList()))
+            }
 
     /**
      * Gets the sort terms (if any) that have been applied to the search.
@@ -982,5 +977,15 @@ class SearchBuilder {
      * Adds a `NotTerm` for the `SearchTerm` operand to this `SearchBuilder`.
      */
     operator fun SearchTerm.unaryMinus() = terms.add(!this)
+}
+
+data class Search(val searchTerm: SearchTerm, val sortedBy: List<Sort>) {
+
+    /**
+     * Whether or not sort terms have been applied to the search.
+     *
+     * @return `true` if a sort has been applied; `false` otherwise.
+     */
+    fun hasSortTerms() = sortedBy.isNotEmpty()
 }
 
